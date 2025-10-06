@@ -19,18 +19,18 @@ article object {
   font-size: 0.8rem;
 }
 
-.heti > p,
+.heti > div > p,
 .tabbed-block > p,
 blockquote > p {
   text-indent: 2rem;
 }
 
-.heti > p:has(br) {
+.heti > div > p:has(br) {
   text-indent: unset;
 }
 
-.heti blockquote,
-.heti details p {
+.heti > div blockquote,
+.heti > div details p {
   font-family: var(--kai-font);
 }
 
@@ -49,35 +49,35 @@ blockquote > p {
   font-family: var(--kai-font);
 }
 
-.heti p strong {
+.heti > div p strong {
   color: #a94a4a;
   font-weight: bolder;
 }
 
-.heti p em {
+.heti > div p em {
   color: #889e73;
   font-style: italic;
 }
 
-.heti > p:has(> strong:only-child) {
+.heti > div > p:has(> strong:only-child) {
   text-indent: 0;
 }
 
-.heti p > strong {
+.heti > div p > strong {
   color: unset;
   font-family: var(--kai-font);
 }
 
 /* 第一个段落，可能是标题 */
-.heti > p:first-child,
-.heti > details:first-child + p {
+.heti > div > p:first-child,
+.heti > div > details:first-child + p {
   text-indent: 0;
   text-align: center;
   font-size: larger;
   margin: 1rem auto;
 }
 
-.heti hr {
+.heti > div hr {
   inline-size: 90%;
 }
 

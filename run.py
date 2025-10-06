@@ -59,17 +59,19 @@ def create_front_matter(front_matter_data: dict) -> str:
     return text
 
 
-def update_mkdocs_nav(mkdocs_config: str, nav: dict) -> str:
+def update_mkdocs_nav(mkdocs_config: str, nav: dict) -> None:
     """创建 Markdown Front Matter 字符串"""
     yaml = YAML()
     yaml.indent(mapping=2, sequence=4, offset=2)
     if Path(mkdocs_config).exists():
+        logging.info(f"读取 {mkdocs_config}")
         with open(mkdocs_config, encoding="utf-8") as f:
             config = yaml.load(f)
     else:
         config = {}
 
     config["nav"] = nav
+    logging.info(f"保存到 {mkdocs_config}")
     with open(mkdocs_config, "w", encoding="utf-8") as f:
         yaml.dump(config, f)
 
@@ -298,6 +300,7 @@ def mkdir(dir_path: Path):
 
 def save_text(save_file, text, encoding="utf-8"):
     text = text.lstrip()
+    text = re.sub(r"\n{3,}", "\n\n", text)
     text = text.rstrip(" \n")
     with open(save_file, "w", encoding=encoding) as f:
         f.write(text + "\n")
