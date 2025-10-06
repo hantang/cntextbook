@@ -4,60 +4,65 @@
 
 <!-- Page content -->
 {% block container %}
-  <div class="md-content md-content--post" data-md-component="content">
+<div class="md-content md-content--post" data-md-component="content">
 
-    <!-- Page content -->
-    <article class="md-content__inner md-typeset">
-      {% block content %}
-        {% include "partials/content.html" %}
-        <div id="diff-container"></div>
-      {% endblock %}
-    </article>
-  </div>
+  <!-- Page content -->
+  <article class="md-content__inner md-typeset">
+    {% block content %}
+    {% include "partials/content.html" %}
+    <div id="diff-container"></div>
+    {% endblock %}
+  </article>
+</div>
 {% endblock %}
 
 
 {% block extrahead %}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
 {% endblock %}
 
 {% block scripts %}
-  {{ super() }}
-  <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
-  <script>
-    document$.subscribe(() => {
+{{ super() }}
+<script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+<script>
+  (() => {
+    // diff2html 配色映射
+    const themeMap = {
+      light: "d2h-light-color-scheme",
+      dark: "d2h-dark-color-scheme",
+      auto: "d2h-auto-color-scheme"
+    };
+
+    // 渲染 diff 内容，数据来自meta
+    function renderDiff() {
       const diffContainer = document.getElementById("diff-container");
       if (!diffContainer) return;
 
       const diffString = `{{ page.meta.diff | e }}`;
+      if (!diffString.trim()) return;
 
-      if (diffString.trim()) {
+      try {
         const diffHtml = Diff2Html.html(diffString, {
           drawFileList: true,
           matching: "lines",
-          outputFormat: "side-by-side"
+          outputFormat: "side-by-side",
         });
         diffContainer.innerHTML = diffHtml;
+        document.querySelectorAll(".d2h-file-list-title").forEach(el => {
+          el.textContent = el.textContent.replace(/Files changed \((\d+)\)/, "已变更文件 ($1) 个");
+        });
+      } catch (e) {
+        console.error("Diff2Html render failed:", e);
+        diffContainer.innerHTML = `<pre>${diffString}</pre>`;
       }
-    });
-  </script>
+    }
+    document$.subscribe(renderDiff);
 
-  <script>
-    document$.subscribe(() => {
-      const wrappers = document.querySelectorAll(
-        ".d2h-file-list-wrapper, .d2h-wrapper"
-      );
-      console.log(wrappers.length, wrappers)
+    function updateColorTheme() {
+      // 自动切换主题
+      const wrappers = document.querySelectorAll(".d2h-file-list-wrapper, .d2h-wrapper");
       if (!wrappers.length) return;
 
-      // 配色映射
-      const themeMap = {
-        light: "d2h-light-color-scheme",
-        dark: "d2h-dark-color-scheme",
-        auto: "d2h-auto-color-scheme"
-      };
-
-      // 自动更新 diff2html 主题
       function updateDiffTheme() {
         const mdColorMedia = document.body.getAttribute("data-md-color-media") || "";
         let themeKey = "auto";
@@ -74,7 +79,9 @@
       updateDiffTheme();
       const observer = new MutationObserver(updateDiffTheme);
       observer.observe(document.body, { attributes: true, attributeFilter: ["data-md-color-media"] });
-    });
-  </script>
+    }
+    document$.subscribe(updateColorTheme);
+  })();
+</script>
 
 {% endblock %}
