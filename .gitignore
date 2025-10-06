@@ -7,3 +7,24 @@
 # ide
 .vscode/
 .idea/
+
+# mkdocs
+site/
+
+# python
+__pycache__/
+*.py[codz]
+*$py.class
+wheels/
+build/
+*.egg-info/
+*.egg
+__pypackages__/
+.env
+
+# more
+trash/
+*.md
+*.pdf
+mkdocs.yml
+!docs/index.md
