@@ -5,6 +5,11 @@ site_author: hantang
 site_description: "Chinese textbooks"
 copyright: Copyright &copy; 2025 Hantang
 
+# Repository
+repo_name: cntextbook
+repo_url: https://github.com/hantang/cntextbook/
+# edit_uri: tree/main
+
 theme:
   name: material
   custom_dir: overrides
@@ -13,17 +18,20 @@ theme:
   language: "zh"
 
   palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default
+      scheme: default 
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to system preference
 
   features:
     - navigation.footer
@@ -50,7 +58,11 @@ extra_javascript:
   # - https://unpkg.com/heti/umd/heti-addon.min.js
 
 plugins:
-  - search
+  - search:
+      lang:
+        - en
+        - zh
+      separator: '[\s\-,:!=\[\]()"/\u200b]+|(?!\b)(?=[A-Z][a-z])|\.(?!\d)|&[lg]t;'
   - meta
   - mkdocs-embed-pdf
   - minify:

@@ -1,4 +1,3 @@
-
 {% extends "main.html" %}
 
 {% import "partials/nav-item.html" as item with context %}
@@ -27,59 +26,55 @@
   <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
   <script>
     document$.subscribe(() => {
-  const diffContainer = document.getElementById("diff-container");
-  if (!diffContainer) return;
+      const diffContainer = document.getElementById("diff-container");
+      if (!diffContainer) return;
 
-  const diffString = `{{ page.meta.diff | e }}`;
+      const diffString = `{{ page.meta.diff | e }}`;
 
-  if (diffString.trim()) {
-    const diffHtml = Diff2Html.html(diffString, {
-      drawFileList: true,
-      matching: "lines",
-      outputFormat: "side-by-side"
+      if (diffString.trim()) {
+        const diffHtml = Diff2Html.html(diffString, {
+          drawFileList: true,
+          matching: "lines",
+          outputFormat: "side-by-side"
+        });
+        diffContainer.innerHTML = diffHtml;
+      }
     });
-    diffContainer.innerHTML = diffHtml;
-  }
-});
-
   </script>
-// <script>
-// document$.subscribe(() => {
-//   // 匹配所有需要跟随主题切换的 diff2html 容器
-//   const wrappers = document.querySelectorAll('.d2h-wrapper, .d2h-file-list-wrapper');
-//   if (!wrappers.length) return;
 
-//   const body = document.body;
+  <script>
+    document$.subscribe(() => {
+      const wrappers = document.querySelectorAll(
+        ".d2h-file-list-wrapper, .d2h-wrapper"
+      );
+      console.log(wrappers.length, wrappers)
+      if (!wrappers.length) return;
 
-//   function updateDiff2HtmlTheme() {
-//     const colorMedia = body.getAttribute('data-md-color-media');
-//     if (!colorMedia) return;
+      // 配色映射
+      const themeMap = {
+        light: "d2h-light-color-scheme",
+        dark: "d2h-dark-color-scheme",
+        auto: "d2h-auto-color-scheme"
+      };
 
-//     wrappers.forEach(wrapper => {
-//       if (colorMedia.includes('dark')) {
-//         wrapper.classList.add('d2h-dark-color-scheme');
-//         wrapper.classList.remove('d2h-light-color-scheme');
-//       } else {
-//         wrapper.classList.add('d2h-light-color-scheme');
-//         wrapper.classList.remove('d2h-dark-color-scheme');
-//       }
-//     });
-//   }
+      // 自动更新 diff2html 主题
+      function updateDiffTheme() {
+        const mdColorMedia = document.body.getAttribute("data-md-color-media") || "";
+        let themeKey = "auto";
+        if (mdColorMedia.includes("dark")) themeKey = "dark";
+        else if (mdColorMedia.includes("light")) themeKey = "light";
 
-//   // 初始化一次
-//   updateDiff2HtmlTheme();
+        const d2hClass = themeMap[themeKey];
+        wrappers.forEach(el => {
+          Object.values(themeMap).forEach(cls => el.classList.remove(cls));
+          el.classList.add(d2hClass);
+        });
+      }
 
-//   // 监听 body 属性变化
-//   const observer = new MutationObserver((mutations) => {
-//     for (const mutation of mutations) {
-//       if (mutation.type === 'attributes' && mutation.attributeName === 'data-md-color-media') {
-//         updateDiff2HtmlTheme();
-//       }
-//     }
-//   });
-
-//   observer.observe(body, { attributes: true });
-// });
-// </script>
+      updateDiffTheme();
+      const observer = new MutationObserver(updateDiffTheme);
+      observer.observe(document.body, { attributes: true, attributeFilter: ["data-md-color-media"] });
+    });
+  </script>
 
 {% endblock %}
