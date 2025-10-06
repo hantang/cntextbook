@@ -1,0 +1,45 @@
+
+<!-- Tags -->
+{% include "partials/tags.html" %}
+
+<!-- Actions -->
+{% include "partials/actions.html" %}
+
+<!--
+  Hack: check whether the content contains a h1 headline. If it doesn't, the
+  page title (or respectively site name) is used as the main headline.
+-->
+{% if "\u003ch1" not in page.content %}
+  {% if page.meta.index %}
+    <h1>{{ page.meta.index }} {{ page.title | d(config.site_name, true)}}</h1>
+  {% else %}
+    <h1>{{ page.title | d(config.site_name, true)}}</h1>
+  {% endif %}
+
+    {# 插入 Front Matter 字段 #}
+  {% if page.meta.author or page.meta.updated %}
+  <div class="doc-meta">
+    {% if page.meta.author %}
+      <span class="author">作者：{{ page.meta.author }}</span>
+    {% endif %}
+    {% if page.meta.updated %}
+      <span class="updated">更新日期：{{ page.meta.updated }}</span>
+    {% endif %}
+  </div>
+  {% endif %}
+
+{% endif %}
+
+<div class="heti">
+<!-- Page content -->
+{{ page.content }}
+</div>
+
+<!-- Source file information -->
+{% include "partials/source-file.html" %}
+
+<!-- Was this page helpful? -->
+{% include "partials/feedback.html" %}
+
+<!-- Comment system -->
+{% include "partials/comments.html" %}

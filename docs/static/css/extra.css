@@ -1,0 +1,87 @@
+:root {
+  /* --md-text-font:  */
+  /* --md-code-font: "monospace"; */
+  --kai-font: "STKaiti", "KaiTi", "Kai", "楷体";
+  --song-font: "SimSun", "STSong", "宋体", "Noto Serif SC";
+  --fang-font: "FangSong", "STFangsong", "仿宋";
+}
+
+article > h1 {
+  text-align: center;
+}
+
+article object {
+  margin: 2rem auto;
+}
+
+.heti {
+  font-family: var(--song-font), var(--md-text-font);
+  font-size: 0.8rem;
+}
+
+.heti > p,
+.tabbed-block > p,
+blockquote > p {
+  text-indent: 2rem;
+}
+
+.heti > p:has(br) {
+  text-indent: unset;
+}
+
+.heti blockquote,
+.heti details p {
+  font-family: var(--kai-font);
+}
+
+.md-typeset details {
+  font-size: 0.75rem;
+}
+
+.md-typeset .tabbed-labels > label {
+  font-family: var(--fang-font), var(--md-text-font);
+  font-size: 0.95rem;
+}
+
+.doc-meta {
+  margin: 1rem auto;
+  text-align: center;
+  font-family: var(--kai-font);
+}
+
+.heti p strong {
+  color: #a94a4a;
+  font-weight: bolder;
+}
+
+.heti p em {
+  color: #889e73;
+  font-style: italic;
+}
+
+.heti > p:has(> strong:only-child) {
+  text-indent: 0;
+}
+
+.heti p > strong {
+  color: unset;
+  font-family: var(--kai-font);
+}
+
+/* 第一个段落，可能是标题 */
+.heti > p:first-child,
+.heti > details:first-child + p {
+  text-indent: 0;
+  text-align: center;
+  font-size: larger;
+  margin: 1rem auto;
+}
+
+.heti hr {
+  inline-size: 90%;
+}
+
+span.d2h-code-line-ctn {
+  word-break: break-all;
+  white-space: normal;
+}

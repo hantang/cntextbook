@@ -1,0 +1,85 @@
+
+{% extends "main.html" %}
+
+{% import "partials/nav-item.html" as item with context %}
+
+<!-- Page content -->
+{% block container %}
+  <div class="md-content md-content--post" data-md-component="content">
+
+    <!-- Page content -->
+    <article class="md-content__inner md-typeset">
+      {% block content %}
+        {% include "partials/content.html" %}
+        <div id="diff-container"></div>
+      {% endblock %}
+    </article>
+  </div>
+{% endblock %}
+
+
+{% block extrahead %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css" />
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js"></script>
+  <script>
+    document$.subscribe(() => {
+  const diffContainer = document.getElementById("diff-container");
+  if (!diffContainer) return;
+
+  const diffString = `{{ page.meta.diff | e }}`;
+
+  if (diffString.trim()) {
+    const diffHtml = Diff2Html.html(diffString, {
+      drawFileList: true,
+      matching: "lines",
+      outputFormat: "side-by-side"
+    });
+    diffContainer.innerHTML = diffHtml;
+  }
+});
+
+  </script>
+// <script>
+// document$.subscribe(() => {
+//   // 匹配所有需要跟随主题切换的 diff2html 容器
+//   const wrappers = document.querySelectorAll('.d2h-wrapper, .d2h-file-list-wrapper');
+//   if (!wrappers.length) return;
+
+//   const body = document.body;
+
+//   function updateDiff2HtmlTheme() {
+//     const colorMedia = body.getAttribute('data-md-color-media');
+//     if (!colorMedia) return;
+
+//     wrappers.forEach(wrapper => {
+//       if (colorMedia.includes('dark')) {
+//         wrapper.classList.add('d2h-dark-color-scheme');
+//         wrapper.classList.remove('d2h-light-color-scheme');
+//       } else {
+//         wrapper.classList.add('d2h-light-color-scheme');
+//         wrapper.classList.remove('d2h-dark-color-scheme');
+//       }
+//     });
+//   }
+
+//   // 初始化一次
+//   updateDiff2HtmlTheme();
+
+//   // 监听 body 属性变化
+//   const observer = new MutationObserver((mutations) => {
+//     for (const mutation of mutations) {
+//       if (mutation.type === 'attributes' && mutation.attributeName === 'data-md-color-media') {
+//         updateDiff2HtmlTheme();
+//       }
+//     }
+//   });
+
+//   observer.observe(body, { attributes: true });
+// });
+// </script>
+
+{% endblock %}

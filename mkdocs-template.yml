@@ -1,0 +1,82 @@
+# Site information
+site_name: "语文探源"
+site_url: https://hantang.github.io/cnbooks/
+site_author: hantang
+site_description: "Chinese textbooks"
+copyright: Copyright &copy; 2025 Hantang
+
+theme:
+  name: material
+  custom_dir: overrides
+  favicon: static/favicon.ico
+  logo: static/logo.png
+  language: "zh"
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+  features:
+    - navigation.footer
+    - navigation.prune
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tooltips
+    - navigation.indexes
+    # - navigation.instant
+    # - navigation.instant.progress
+
+extra_css:
+  - https://cdn.jsdelivr.net/npm/heti@0.9.6/umd/heti.min.css
+  # - https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css
+  - static/css/extra.css
+
+extra_javascript:
+  # - https://cdnjs.cloudflare.com/ajax/libs/Han/3.2.7/han.min.js
+  - https://cdn.jsdelivr.net/npm/heti@0.9.6/umd/heti-addon.min.js
+  # - https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js
+  - static/js/remove-space.js
+#   - https://unpkg.com/heti/umd/heti-addon.min.js
+
+plugins:
+  - search
+  - meta
+  - mkdocs-embed-pdf
+  - minify:
+      minify_html: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - def_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - abbr
+  - pymdownx.snippets
+  - md_in_html
+  - toc:
+      permalink: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - tables
+  - pymdownx.betterem
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
