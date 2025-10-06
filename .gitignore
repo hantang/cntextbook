@@ -26,5 +26,6 @@ __pypackages__/
 trash/
 *.md
 *.pdf
+*.tsv
 mkdocs.yml
 !docs/index.md

@@ -531,7 +531,12 @@ def create_docs(resource_dir: str, docs_dir: str):
         index_file = Path(resource_dir, "README.md")
     if index_file.exists():
         doc_file = Path(docs_dir, "index.md")
-        shutil.copy(index_file, doc_file)
+        # shutil.copy(index_file, doc_file)
+        with open(index_file, encoding="utf-8") as f:
+            text = f.read()
+        meta_fm = create_front_matter({"icon": "material/home"})
+        text = "\n\n".join([meta_fm, text])
+        save_text(doc_file, text)
 
     # 更新侧边栏导航
     logging.info("更新导航")
