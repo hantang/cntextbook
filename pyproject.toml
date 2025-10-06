@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=70.0", "setuptools-scm>=8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mkdocs-embed-pdf"
+authors = [
+    { name = "hantang" }
+]
+dynamic = ["version"]
+requires-python = ">=3.7"
+dependencies = ["lxml"]
+
+[tool.setuptools]
+packages = ["mkdocs_embed_pdf"]
+package-dir = { "" = "plugins" }  # 告诉 setuptools 顶层包在 plugins/ 下
+
+[project.entry-points."mkdocs.plugins"]
+"mkdocs-embed-pdf" = "mkdocs_embed_pdf.plugin:EmbedPdfPlugin"
+
+[tool.setuptools.dynamic]
+version = { attr = "mkdocs_embed_pdf.__version__" }
