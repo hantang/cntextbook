@@ -7,4 +7,11 @@
 # ide
 .vscode/
 .idea/
+
 docs/
+plugins/
+src/
+
+*.yml
+*.py
+*.sh

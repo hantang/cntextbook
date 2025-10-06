@@ -1,5 +1,8 @@
 # 语文探源
 
+[![Deploy Site](https://github.com/hantang/cntextbook/actions/workflows/deploy.yml/badge.svg)](https://github.com/hantang/cntextbook/actions/workflows/deploy.yml)
+![GitHub Commit Badge](https://img.shields.io/github/last-commit/hantang/cntextbook.svg)
+
 ## 说明
 
 中小学语文教材课文原文汇集，对比选文修改内容。
