@@ -1,6 +1,6 @@
 # Site information
 site_name: "语文探源"
-site_url: https://hantang.github.io/cnbooks/
+site_url: https://hantang.github.io/cntextbook/
 site_author: hantang
 site_description: "Chinese textbooks"
 copyright: Copyright &copy; 2025 Hantang
@@ -47,7 +47,7 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/heti@0.9.6/umd/heti-addon.min.js
   # - https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html.min.js
   - static/js/remove-space.js
-#   - https://unpkg.com/heti/umd/heti-addon.min.js
+  # - https://unpkg.com/heti/umd/heti-addon.min.js
 
 plugins:
   - search

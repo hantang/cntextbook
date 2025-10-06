@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - docs
+  workflow_dispatch:
+  # schedule:
+  #   - cron: "0 15 * * 1"
+
+jobs:
+  deploy:
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+
+    env:
+      USER: ${{ github.repository_owner }}
+      SRC_NAME: resources
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs
+
+      # 拉取数据
+      - name: Checkout data
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: main
+          path: ${{ env.SRC_NAME }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install deps
+        run: pip install -r requirements.txt
+      - name: Build Site
+        run: bash run.sh $SRC_NAME
+
+      - name: Setup pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./site
+      - name: Deploy to GitHub pages
+        id: deployment
+        uses: actions/deploy-pages@v4
