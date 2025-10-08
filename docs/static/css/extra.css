@@ -44,6 +44,10 @@ blockquote > p {
   font-size: 0.95rem;
 }
 
+.heti summary, .heti h1, h2, h3, h4, h5, h6 {
+  font-family: var(--md-text-font);
+}
+
 .doc-meta {
   margin: 1rem auto;
   text-align: center;
@@ -85,4 +89,12 @@ blockquote > p {
 span.d2h-code-line-ctn {
   word-break: break-all;
   white-space: normal;
+}
+
+/* 落款：居右对齐 */
+.signature {
+  font-size: smaller;
+  font-family: var(--kai-font);
+  text-align: right;
+  padding: 1rem 5rem;
 }
