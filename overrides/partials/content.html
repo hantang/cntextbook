@@ -10,7 +10,7 @@
   page title (or respectively site name) is used as the main headline.
 -->
 {% if "\u003ch1" not in page.content %}
-  {% if page.meta.index %}
+  {% if page.meta.index and page.meta.index < 99 %}
     <h1>{{ page.meta.index }} {{ page.title | d(config.site_name, true)}}</h1>
   {% else %}
     <h1>{{ page.title | d(config.site_name, true)}}</h1>

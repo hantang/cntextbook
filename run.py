@@ -70,7 +70,7 @@ def update_mkdocs_nav(mkdocs_config: str, nav: dict) -> None:
     else:
         config = {}
 
-    config["nav"] = nav
+    config["nav"].extend(nav) # 允许手动定义的
     logging.info(f"保存到 {mkdocs_config}")
     with open(mkdocs_config, "w", encoding="utf-8") as f:
         yaml.dump(config, f)
@@ -143,7 +143,7 @@ def _get_icon(index: int, level: int = 0) -> str:
     index页面添加icon
     :material-numeric-1-box: unit
     :material-numeric-9-box-multiple:
-    :material-dice-d4:
+    :material-dice-4:
     """
     icon = "material/atom"
     if level > 0:  # 年级+上下册
@@ -153,7 +153,7 @@ def _get_icon(index: int, level: int = 0) -> str:
         elif 10 <= index <= 12:
             v = (index - 10) * 3 + level
             if 1 <= v <= 9:
-                icon = f"material/dice-d{v}"
+                icon = f"material/dice-{v}"
     else:
         # 单元
         if 1 <= index <= 9:
@@ -197,17 +197,26 @@ def tsv_to_md(toc_file, sep="\t"):
     return "\n".join(table)
 
 
-def create_book_text(book_name: str, toc_file: Path) -> str:
+def create_book_text(book_name: str, idx_file: Path, toc_file: Path) -> str:
+    index_text = ""
+    if idx_file.exists():
+        with open(idx_file, encoding="utf-8") as f:
+            index_text = f.read()
+    
     toc_table = ""
-    logging.info(f"Read toc = {toc_file}")
     if toc_file.exists():
+        logging.info(f"Read toc = {toc_file}")
         toc_table = tsv_to_md(toc_file)
 
     index, level = get_index_level(book_name)
     icon = _get_icon(index, level)
-    meta = {"title": book_name, "icon": icon, "hide": ["toc"]}
+    meta = {"title": book_name, "icon": icon} # "hide": ["toc"]
 
-    md_text = f"## 目录\n\n{toc_table}" if toc_table else ""
+    if index_text:
+        md_text = index_text.replace("<!-- 目录 -->", toc_table) 
+    else:
+        md_text = f"## 目录\n\n{toc_table}" if toc_table else ""
+    
     fm = create_front_matter(meta)
     text = "\n".join([fm, md_text])
     return text
@@ -339,10 +348,11 @@ def get_index_level(name):
         if result := re.findall(rf"([{nums}])年级", name):
             grade = nums.index(result[0]) + 1
 
-    result = re.findall(rf"([{group}])册", name)
+    result = re.findall(rf"年级([{group}])册|[初高]中.*([{group}])", name)
+    result2 = [v[0] for v in result if v]
     level = 0
-    if result:
-        level = group.index(result[0]) + 1
+    if result2:
+        level = group.index(result2[0]) + 1
     return grade, level
 
 
@@ -410,7 +420,7 @@ def create_nav(nav_dict, mkdocs_config):
 
     tree = build_tree(nav_dict)
     nav = tree_to_nav(tree)
-    out = [{"首页": "index.md"}]
+    out = []
     nav_dict = {g: [] for g in nav_levels}
     for item in nav:  # 新增一层
         # assert len(item) == 1
@@ -453,6 +463,8 @@ def create_docs(resource_dir: str, docs_dir: str):
     nav_dict = {}
     for dir_path in directories:
         book_name = dir_path.name
+        if book_name.startswith("."):
+            continue
 
         text_dir = Path(dir_path, TEXT_DIR)
         raw_dir = Path(dir_path, RAW_DIR)
@@ -470,8 +482,9 @@ def create_docs(resource_dir: str, docs_dir: str):
 
         # 创建index.md
         toc_file = Path(dir_path, TOC_NAME)
+        idx_file = Path(dir_path, "index.md")
         save_file = Path(save_dir, "index.md")
-        text = create_book_text(book_name, toc_file)
+        text = create_book_text(book_name, idx_file, toc_file)
         mkdir(save_dir)
         save_text(save_file, text)
         index, level = get_index_level(book_name)

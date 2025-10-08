@@ -27,6 +27,7 @@ blockquote > p {
 
 .heti > div > p:has(br) {
   text-indent: unset;
+  text-align: center;
 }
 
 .heti > div blockquote,
