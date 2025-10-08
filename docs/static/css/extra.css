@@ -33,10 +33,12 @@ blockquote > p {
 .heti > div blockquote,
 .heti > div details p {
   font-family: var(--kai-font);
+  text-indent: 2rem;
 }
 
-.md-typeset details {
+.heti details {
   font-size: 0.75rem;
+  margin: 2rem auto;
 }
 
 .md-typeset .tabbed-labels > label {
@@ -44,7 +46,13 @@ blockquote > p {
   font-size: 0.95rem;
 }
 
-.heti summary, .heti h1, h2, h3, h4, h5, h6 {
+.heti summary,
+.heti h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--md-text-font);
 }
 
@@ -92,9 +100,24 @@ span.d2h-code-line-ctn {
 }
 
 /* 落款：居右对齐 */
-.signature {
+.heti .article-signature {
   font-size: smaller;
   font-family: var(--kai-font);
   text-align: right;
-  padding: 1rem 5rem;
+  padding: 1rem 2rem;
+}
+
+.heti .article-signature > p {
+  text-align: right;
+}
+
+.heti .article-date {
+  font-size: smaller;
+  font-family: var(--kai-font);
+  text-align: center;
+  margin: 1rem auto;
+}
+
+.heti .article-date > p {
+  text-align: center;
 }
