@@ -115,14 +115,24 @@ def _indent_text(text: str, indent: int) -> str:
     return out
 
 
-def create_md_tip(yaml_data, key, indent=4):
+def create_md_tip(yaml_data, indent=4):
     """使用admonition/call-out展示【预习】"""
-    desc = yaml_data.get(key)
-    if not desc:
-        return ""
+    yaml_key = None
+    for key in ['desc', 'tip']:
+        if key not in yaml_data:
+            continue
+        yaml_key = key
+    if not yaml_key:
+        return "", yaml_key
+    desc = yaml_data.get(yaml_key)
     desc_text = _indent_text(desc.strip(), indent)
-    out = f'???+ tip "预习"\n\n{desc_text}'
-    return dedent(out)
+
+    if yaml_key == "desc":
+        out = f'???+ info "预习"\n\n{desc_text}'
+    else:
+        out = f'???+ tip "学习提示"\n\n{desc_text}'
+
+    return dedent(out), yaml_key
 
 
 def create_md_tabs(raw_text, book_text, raw_title, book_title, indent=4):
@@ -227,10 +237,9 @@ def update_file_text(text_file):
     with open(text_file, encoding="utf-8") as f:
         text = f.read()
     meta, md_text = extract_front_matter(text)
-    key = "desc"  # 预习
     desc = ""
-    if key in meta:
-        desc = create_md_tip(meta, key)
+    desc, key = create_md_tip(meta)
+    if desc and key:
         del meta[key]
         if desc:
             desc = f"\n{desc}\n"
