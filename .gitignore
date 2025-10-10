@@ -11,6 +11,7 @@
 docs/
 plugins/
 src/
+trash/
 
 *.yml
 *.py
