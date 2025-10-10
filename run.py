@@ -1,22 +1,23 @@
+"""
+md文件处理
+"""
+
+import argparse
 import difflib
-import json
 import logging
 import re
 import shutil
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
-import argparse
-
 
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import LiteralScalarString
 
-
 PDF_DIR = "pdf"
 TEXT_DIR = "text"
 RAW_DIR = "raw"
-TOC_NAME = "目录.tsv"
+TOC_NAME = "toc.tsv"
 
 
 def extract_front_matter(md_text: str):
@@ -70,7 +71,7 @@ def update_mkdocs_nav(mkdocs_config: str, nav: dict) -> None:
     else:
         config = {}
 
-    config["nav"].extend(nav) # 允许手动定义的
+    config["nav"].extend(nav)  # 允许手动定义的
     logging.info(f"保存到 {mkdocs_config}")
     with open(mkdocs_config, "w", encoding="utf-8") as f:
         yaml.dump(config, f)
@@ -118,20 +119,31 @@ def _indent_text(text: str, indent: int) -> str:
 def create_md_tip(yaml_data, indent=4):
     """使用admonition/call-out展示【预习】"""
     yaml_key = None
-    for key in ['desc', 'tip']:
+    for key in ["desc", "tip"]:
         if key not in yaml_data:
             continue
         yaml_key = key
     if not yaml_key:
         return "", yaml_key
-    desc = yaml_data.get(yaml_key)
+    desc = yaml_data.get(yaml_key, "").strip()
+    tag = None
+    if result := re.findall(r"^\s*\*\*(\S+)\*\*\n", desc):
+        tag = result[0]
+        desc = re.sub(r"^\s*\*\*(\S+)\*\*\n", "", desc)
+    if not desc:
+        return "", yaml_key
+
     desc_text = _indent_text(desc.strip(), indent)
-
+    tag_type = "info"
     if yaml_key == "desc":
-        out = f'???+ info "预习"\n\n{desc_text}'
+        if not tag:
+            tag = "预习"
     else:
-        out = f'???+ tip "学习提示"\n\n{desc_text}'
+        if not tag:
+            tag = "学习提示"
+        tag_type = "tip"
 
+    out = f'???+ {tag_type} "{tag}"\n\n{desc_text}'
     return dedent(out), yaml_key
 
 
@@ -141,6 +153,8 @@ def create_md_tabs(raw_text, book_text, raw_title, book_title, indent=4):
     titles = [raw_title, book_title]
     out = []
     for text, title in zip(texts, titles):
+        if not text.strip():
+            continue
         text2 = _indent_text(text.strip(), indent)
         result = f'=== "{title}"\n\n{text2}'
         out.append(dedent(result))
@@ -212,7 +226,7 @@ def create_book_text(book_name: str, idx_file: Path, toc_file: Path) -> str:
     if idx_file.exists():
         with open(idx_file, encoding="utf-8") as f:
             index_text = f.read()
-    
+
     toc_table = ""
     if toc_file.exists():
         logging.info(f"Read toc = {toc_file}")
@@ -220,13 +234,13 @@ def create_book_text(book_name: str, idx_file: Path, toc_file: Path) -> str:
 
     index, level = get_index_level(book_name)
     icon = _get_icon(index, level)
-    meta = {"title": book_name, "icon": icon} # "hide": ["toc"]
+    meta = {"title": book_name, "icon": icon}  # "hide": ["toc"]
 
     if index_text:
-        md_text = index_text.replace("<!-- 目录 -->", toc_table) 
+        md_text = index_text.replace("<!-- 目录 -->", toc_table)
     else:
         md_text = f"## 目录\n\n{toc_table}" if toc_table else ""
-    
+
     fm = create_front_matter(meta)
     text = "\n".join([fm, md_text])
     return text
@@ -262,12 +276,12 @@ def _compute_diff(raw_text, book_text, fromfile, tofile):
 
 def concat_diff_texts(raw_file, text_file, file_dir, docs_dir):
     """生成原文和课文"""
-    pdf_name = None
+    pdf_data = None
     with open(raw_file, encoding="utf-8") as f:
         text = f.read()
         raw_meta, md_text = extract_front_matter(text)
         raw_text = md_to_text(md_text)
-        pdf_name = raw_meta.get("pdf")
+        pdf_data = raw_meta.get("pdf")
 
     with open(text_file, encoding="utf-8") as f:
         text = f.read()
@@ -283,14 +297,23 @@ def concat_diff_texts(raw_file, text_file, file_dir, docs_dir):
     tab_text = f"## 内容\n\n{tab_text}"
 
     pdf_text = ""
-    if pdf_name:
-        pdf_file = Path(file_dir, PDF_DIR, pdf_name)
-        if pdf_file.exists():
-            save_pdf_file = Path(docs_dir, PDF_DIR, pdf_name)
-            mkdir(save_pdf_file.parent)
-            shutil.copy(pdf_file, save_pdf_file)
-            pdf_path = save_pdf_file.relative_to(docs_dir).as_posix()
-            pdf_text = f'## 原文\n\n![{pdf_name}]({pdf_path}){{ type=application/pdf style="height:600px;width:100%" }}'
+    if pdf_data:
+        pdf_text_list = ["## 原文"]
+        pdf_list = []
+        if isinstance(pdf_data, str):
+            pdf_list = [pdf_data]
+        else:
+            pdf_list = pdf_data
+        for pdf_name in pdf_list:
+            pdf_file = Path(file_dir, PDF_DIR, pdf_name)
+            if pdf_file.exists():
+                save_pdf_file = Path(docs_dir, PDF_DIR, pdf_name)
+                mkdir(save_pdf_file.parent)
+                shutil.copy(pdf_file, save_pdf_file)
+                pdf_path = save_pdf_file.relative_to(docs_dir).as_posix()
+                pdf_md = f'![{pdf_name}]({pdf_path}){{ type=application/pdf style="height:600px;width:100%" }}'
+                pdf_text_list.append(pdf_md)
+        pdf_text = "\n\n".join(pdf_text_list)
 
     tab_meta = {
         "title": f"{title}（原文/课文）",
@@ -299,15 +322,17 @@ def concat_diff_texts(raw_file, text_file, file_dir, docs_dir):
     tab_fm = create_front_matter(tab_meta)
     tab_out = "\n\n".join([tab_fm, pdf_text, tab_text])
 
-    diff_text = _compute_diff(raw_text, book_text, fromfile=raw_title, tofile=title)
-    diff_meta = {
-        "title": f"{title}（课文改动）",
-        "author": book_meta.get("author", ""),
-        "template": "diff.html",
-        "hide": ["toc"],
-        "diff": LiteralScalarString(diff_text),  # 多行字符串格式
-    }
-    diff_out = create_front_matter(diff_meta)
+    diff_out = ""
+    if raw_text.strip():
+        diff_text = _compute_diff(raw_text, book_text, fromfile=raw_title, tofile=title)
+        diff_meta = {
+            "title": f"{title}（课文改动）",
+            "author": book_meta.get("author", ""),
+            "template": "diff.html",
+            "hide": ["toc"],
+            "diff": LiteralScalarString(diff_text),  # 多行字符串格式
+        }
+        diff_out = create_front_matter(diff_meta)
     return tab_out, diff_out
 
 
@@ -526,10 +551,15 @@ def create_docs(resource_dir: str, docs_dir: str):
             order = f"{book_order}_{unit_index}"
             title = meta.get("title", save_file.parent.name)
             if "index" in meta:
-                index, level = meta["index"], meta["unit"]
-                order = f"{order}_{level}"
-                if index < 99:
-                    title = f"{index:02d} {title}"
+                index, level = str(meta["index"]), meta["unit"]
+                page = str(meta["page"]).split("-", maxsplit=1)[0]
+                if page.isdigit():
+                    page = f"{int(page):03d}"
+                else:
+                    page = "999"
+                order = f"{order}_{page}_{level}"
+                if index.isdigit() and int(index) < 99:
+                    title = f"{int(index):02d} {title}"
 
             nav_dict[save_file.relative_to(docs_dir).as_posix()] = (order, title)
 
@@ -540,12 +570,13 @@ def create_docs(resource_dir: str, docs_dir: str):
 
                 save_text_file = Path(save_dir, "原文.md")  # 原文 + 课文
                 save_text(save_text_file, raw_text)
-
-                save_diff_file = Path(save_dir, "改动.md")  # 修改统计
-                save_text(save_diff_file, diff_text)
-
                 nav_dict[save_text_file.relative_to(docs_dir).as_posix()] = (order + "y", title)
-                nav_dict[save_diff_file.relative_to(docs_dir).as_posix()] = (order + "z", title)
+
+                if diff_text:
+                    save_diff_file = Path(save_dir, "改动.md")  # 修改统计
+                    save_text(save_diff_file, diff_text)
+                    nav_dict[save_diff_file.relative_to(docs_dir).as_posix()] = (order + "z", title)
+
 
     # update index.md
     index_file = Path(resource_dir, "index.md")
