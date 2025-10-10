@@ -311,7 +311,10 @@ def concat_diff_texts(raw_file, text_file, file_dir, docs_dir):
                 mkdir(save_pdf_file.parent)
                 shutil.copy(pdf_file, save_pdf_file)
                 pdf_path = save_pdf_file.relative_to(docs_dir).as_posix()
-                pdf_md = f'![{pdf_name}]({pdf_path}){{ type=application/pdf style="height:600px;width:100%" }}'
+                pdf_md = f'![{pdf_name}]({pdf_path}){{ type=application/pdf }}'
+                if len(pdf_list) > 1:
+                    subtitle = pdf_name.split("/")[-1].split(".")[0].split(" - ", 1)[-1]
+                    pdf_md = f"### {subtitle}\n\n{pdf_md}"
                 pdf_text_list.append(pdf_md)
         pdf_text = "\n\n".join(pdf_text_list)
 

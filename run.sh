@@ -27,7 +27,13 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # 配置
-cp mkdocs-template.yml mkdocs.yml
+if [[ -d docs ]]; then
+    echo "clean docs/"
+    rm -rf docs
+fi
+mkdir -p docs
+cp -r config/static docs/
+cp config/mkdocs-template.yml mkdocs.yml
 
 # 删除不必要的md文件
 find docs -name "*.md" ! -name "index.md" -type f -delete

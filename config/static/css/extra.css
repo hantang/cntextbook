@@ -20,7 +20,6 @@ article object {
 }
 
 .heti > div > p,
-.tabbed-block > p,
 blockquote > p {
   text-indent: 2rem;
 }
@@ -34,6 +33,10 @@ blockquote > p {
 .heti > div details p {
   font-family: var(--kai-font);
   text-indent: 2rem;
+}
+
+.tabbed-block > p {
+  font-family: var(--kai-font);
 }
 
 .heti details {
