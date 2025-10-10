@@ -12,6 +12,7 @@ docs/
 plugins/
 src/
 trash/
+build/
 
 *.yml
 *.py
