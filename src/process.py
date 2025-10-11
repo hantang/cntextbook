@@ -71,7 +71,11 @@ def update_mkdocs_nav(mkdocs_config: str, nav: dict) -> None:
     else:
         config = {}
 
-    config["nav"].extend(nav)  # 允许手动定义的
+    if "nav" in config:   # 允许手动定义的
+        raw_nav = config["nav"]
+        config["nav"] = raw_nav[:1] + nav + raw_nav[1:]
+    else:
+        config["nav"] = nav
     logging.info(f"保存到 {mkdocs_config}")
     with open(mkdocs_config, "w", encoding="utf-8") as f:
         yaml.dump(config, f)
@@ -143,7 +147,7 @@ def create_md_tip(yaml_data, indent=4):
             tag = "学习提示"
         tag_type = "tip"
 
-    out = f'???+ {tag_type} "{tag}"\n\n{desc_text}'
+    out = f'??? {tag_type} "{tag}"\n\n{desc_text}'
     return dedent(out), yaml_key
 
 

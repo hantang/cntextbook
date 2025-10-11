@@ -4,6 +4,7 @@ set -eu
 INPUT_PATH="."
 STEP_BUILD=true
 STEP_DEP=true
+DOCS_PATH="docs"
 
 # 解析命令行参数
 while [[ "$#" -gt 0 ]]; do
@@ -27,28 +28,33 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # 配置
-if [[ -d docs ]]; then
-    echo "clean docs/"
-    rm -rf docs
+if [[ -d "$DOCS_PATH" ]]; then
+    echo "clean $DOCS_PATH"
+    rm -rf "$DOCS_PATH"
 fi
-mkdir -p docs
-cp -r config/static docs/
+mkdir -p "$DOCS_PATH"
 cp config/mkdocs-template.yml mkdocs.yml
 
 # 删除不必要的md文件
-find docs -name "*.md" ! -name "index.md" -type f -delete
-find docs -name "*.pdf"  -type f -delete
+# find docs -name "*.md" ! -name "index.md" -type f -delete
+# find docs -name "*.pdf"  -type f -delete
 
 # 生成文档和nav
-python run.py --input "$INPUT_PATH"
+python src/process.py --input "$INPUT_PATH" --output "$DOCS_PATH"
+
+cp -r config/static "$DOCS_PATH"/
+cp -r extra/* "$DOCS_PATH"/
+
+python src/postprocess.py --docs "$DOCS_PATH"
+
 
 if [[ "$STEP_DEP" == true ]]; then
-pip install .
+    pip install .
 fi
 
 # 构建静态脚本
 if [[ "$STEP_BUILD" == true ]]; then
-mkdocs build
+    mkdocs build
 fi
 
 echo "Done"

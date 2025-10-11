@@ -13,7 +13,7 @@ dependencies = ["lxml"]
 
 [tool.setuptools]
 packages = ["mkdocs_embed_pdf"]
-package-dir = { "" = "plugins" }  # 告诉 setuptools 顶层包在 plugins/ 下
+package-dir = { "" = "src/plugins" }  # 告诉 setuptools 顶层包在 plugins/ 下
 
 [project.entry-points."mkdocs.plugins"]
 "mkdocs-embed-pdf" = "mkdocs_embed_pdf.plugin:EmbedPdfPlugin"
